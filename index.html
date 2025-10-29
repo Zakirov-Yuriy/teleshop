@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Платформа Telegram магазинов с интеграцией Wildberries</title>
+    
+    <!-- Telegram Web App Script - ВАЖНО: должен быть первым -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <script>
+      // СРАЗУ пытаемся развернуть (до загрузки DOM)
+      if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+        console.log('🚀 Initial expand attempt');
+      }
+    </script>
+    
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      html, body {
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      body {
+        background-color: var(--tg-theme-bg-color, #1a1a1a);
+        color: var(--tg-theme-text-color, #ffffff);
+      }
+      
+      /* Поддержка безопасных зон для iPhone */
+      .pt-safe {
+        padding-top: env(safe-area-inset-top);
+      }
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      .pl-safe {
+        padding-left: env(safe-area-inset-left);
+      }
+      .pr-safe {
+        padding-right: env(safe-area-inset-right);
+      }
+      .px-safe {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+      .py-safe {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      
+      /* Контейнер приложения */
+      #root {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      /* Для iOS - учитываем safe area */
+      @supports (padding: env(safe-area-inset-top)) {
+        #root {
+          padding-top: env(safe-area-inset-top);
+          padding-bottom: env(safe-area-inset-bottom);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <script>
+      window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6cmFmZXhsYWxham9pcnp1Z2RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ5NzI5NzQsImV4cCI6MjA1MDU0ODk3NH0.kzrafexlalajoirzugdj.supabase.co';
+      
+      // Расширенная инициализация Telegram Web App
+      document.addEventListener('DOMContentLoaded', function() {
+        if (window.Telegram && window.Telegram.WebApp) {
+          const tg = window.Telegram.WebApp;
+          
+          // Инициализируем
+          tg.ready();
+          
+          // РАЗВОРАЧИВАЕМ НА ВЕСЬ ЭКРАН
+          tg.expand();
+          
+          // Дополнительные настройки
+          tg.enableClosingConfirmation();
+          
+          // Устанавливаем цвета темы
+          tg.setHeaderColor('#1a1a1a');
+          tg.setBackgroundColor('#1a1a1a');
+          
+          // Логирование для отладки
+          console.log('✅ Telegram WebApp initialized');
+          console.log('Is expanded:', tg.isExpanded);
+          console.log('Viewport height:', tg.viewportHeight);
+          console.log('Viewport stable height:', tg.viewportStableHeight);
+          
+          // Если не развернулось, пробуем еще раз
+          if (!tg.isExpanded) {
+            setTimeout(() => {
+              tg.expand();
+              console.log('🔄 Retry expand, is expanded:', tg.isExpanded);
+            }, 100);
+            
+            // И еще раз через 500ms
+            setTimeout(() => {
+              if (!tg.isExpanded) {
+                tg.expand();
+                console.log('🔄 Final expand attempt, is expanded:', tg.isExpanded);
+              }
+            }, 500);
+          }
+          
+          // Альтернативный метод - через MainButton
+          if (!tg.isExpanded) {
+            tg.MainButton.show();
+            setTimeout(() => tg.MainButton.hide(), 100);
+          }
+          
+          // Обработчик изменения размера viewport
+          tg.onEvent('viewportChanged', function() {
+            console.log('📐 Viewport changed:', {
+              height: tg.viewportHeight,
+              stableHeight: tg.viewportStableHeight,
+              isExpanded: tg.isExpanded
+            });
+            
+            // Подстраиваем высоту контента
+            document.body.style.height = tg.viewportHeight + 'px';
+          });
+        }
+      });
+    </script>
+    
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

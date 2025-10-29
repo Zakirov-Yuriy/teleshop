@@ -1,0 +1,17 @@
+
+{
+  "imports": {
+    "selenium": "https://deno.land/x/selenium@4.21.0/mod.ts",
+    "supabase": "https://esm.sh/@supabase/supabase-js@2"
+  },
+  "tasks": {
+    "dev": "deno run --allow-all --unstable supabase/functions/serve.ts",
+    "deploy-ozon": "supabase functions deploy autopurchase-ozon",
+    "deploy-wildberries": "supabase functions deploy autopurchase-wilberries"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window"],
+    "strict": true
+  }
+}
